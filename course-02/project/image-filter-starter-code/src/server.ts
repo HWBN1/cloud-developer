@@ -42,8 +42,8 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     let { image_url } = req.query;
     // validate the query
     if ( !image_url ) {
-      return res.status(400)
-                .send(`image_url is required`);
+      res.status(400)
+        .send(`image_url is required`);
     }
     // filter the image
     const filtered_image = filterImageFromURL(image_url);
@@ -55,6 +55,9 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
       setTimeout(() => {
         deleteLocalFiles([filteredpath])
       }, 5000);
+    }).catch(() => {
+      res.status(422)
+        .send(`invalid image_url`);
     })
   } );
 
