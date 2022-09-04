@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -37,20 +37,21 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   
-  app.get( "/filteredimage?:image_url", async ( req, res ) => {
+  app.get( "/filteredimage?:image_url", async ( req: Request, res: Response) => {
     // read the url
-    let { image_url } = req.query;
+    let { image_url }: { image_url: string } = req.query;
     // validate the query
     if ( !image_url ) {
       return res.status(400)
         .send(`image_url is required.`);
     }
     // filter the image
-    const filtered_image = filterImageFromURL(image_url);
+    let filtered_image: Promise<string> = filterImageFromURL(image_url);
     // send the resulting file in the response
     filtered_image.then((filteredpath) => {
       // send the file as an octet stream.
-      res.sendFile(filteredpath);
+      res.status(200)
+        .sendFile(filteredpath);
       // clean up tmp folders
       setTimeout(() => {
         deleteLocalFiles([filteredpath])
